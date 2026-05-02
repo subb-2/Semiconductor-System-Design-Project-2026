@@ -56,3 +56,6 @@ coverage.vdb/
 
 # 기타
 *.key
+
+# Vitis/Eclipse workspace metadata only
+**/workspace/.metadata/

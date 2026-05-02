@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="UpCounter_TimeClock" location="D:/system_verilog/0429_MicroBlaze_Timer_Intr/vitis_workplace/UpCounter_TimeClock" platform="D:/system_verilog/0429_MicroBlaze_Timer_Intr/vitis_workplace/design_2_wrapper/export/design_2_wrapper/design_2_wrapper.xpfm" platformUID="xilinx:basys3::0.0(custom)" systemProject="UpCounter_TimeClock_system" sysConfig="design_2_wrapper" runtime="cpp" cpu="standalone_microblaze_0" cpuInstance="microblaze_0" os="standalone" mssSignature="66299c655b7f8bfdd37fc5397f8329c3">
+  <configuration name="Debug" id="xilinx.gnu.mb.exe.debug.2050611435">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+    <lastBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <configuration name="Release" id="xilinx.gnu.mb.exe.release.1123613250" dirty="true">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <template appTemplateName="empty_application"/>
+</sdkproject:SdkProject>

@@ -1,0 +1,23 @@
+/*
+ * TMR.h
+ *
+ *  Created on: 2026. 4. 29.
+ *      Author: kccistc
+ */
+
+#ifndef SRC_HAL_TMR_TMR_H_
+#define SRC_HAL_TMR_TMR_H_
+
+#include "xparameters.h"
+#include <stdint.h>
+
+typedef struct {
+	uint32_t CR;
+	uint32_t PSC;
+	uint32_t ARR;
+	uint32_t CNT;
+}TMR_Typedef_f;
+
+#define TMR1_BASEADDR
+
+#endif /* SRC_HAL_TMR_TMR_H_ */
