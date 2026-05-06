@@ -8,35 +8,28 @@
 #ifndef SRC_DRIVER_LED_LED_H_
 #define SRC_DRIVER_LED_LED_H_
 
-typedef enum {
-	round1, round2, round3, round4
-} round_stat_t;
+#include "../../HAL/GPIO/GPIO.h"
 
-#define LED_PORT GPIOC
+#define LED_MODE_UP_COUNTER_PORT GPIOC
+#define LED_MODE_UP_COUNTER_PIN GPIO_PIN_7
+#define LED_MODE_TIME_CLOCK_PORT GPIOC
+#define LED_MODE_TIME_CLOCK_PIN GPIO_PIN_6
+#define LED_TIME_MODE_HH_MM_PORT GPIOC
+#define LED_TIME_MODE_HH_MM_PIN GPIO_PIN_5
+#define LED_TIME_MODE_SS_MS_PORT GPIOC
+#define LED_TIME_MODE_SS_MS_PIN GPIO_PIN_4
 
-#define LED_PIN_0 GPIO_PIN_0
-#define LED_PIN_1 GPIO_PIN_1
-#define LED_PIN_2 GPIO_PIN_2
-#define LED_PIN_3 GPIO_PIN_3
-#define LED_PIN_4 GPIO_PIN_4
-#define LED_PIN_5 GPIO_PIN_5
-#define LED_PIN_6 GPIO_PIN_6
-#define LED_PIN_7 GPIO_PIN_7
+typedef struct {
+	GPIO_Typedef_t *GPIOx;
+	uint32_t GPIO_PIN;
+}hLed;
 
-#define ON 0
-#define OFF 1
+void Led_Init(hLed *hled, GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN);
+void LED_On(hLed *hled);
+void LED_Off(hLed *hled);
+void LED_Toggle(hLed *hled);
+void LED_WritePort(hLed *hled, uint8_t data);
+uint8_t LED_ReadPort(hLed *hled);
 
-void LED_Count_Mode_ON();
-void LED_Count_Mode_OFF();
-void LED_Clock_Mode_ON();
-void LED_Clock_Mode_OFF();
-
-void LED_Clock_FND_HM();
-void LED_Clock_FND_SMS();
-int LED_Delay_Counter();
-int LED_Delay_Clock();
-
-void LED_Round_UpCounter();
-void LED_Round_Clock();
 
 #endif /* SRC_DRIVER_LED_LED_H_ */

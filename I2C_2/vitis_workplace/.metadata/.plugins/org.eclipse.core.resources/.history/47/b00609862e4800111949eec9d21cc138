@@ -1,0 +1,82 @@
+/*
+ * I2C.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+#include "I2C.h"
+
+void I2C_Wait_Done(I2C_Typedef_t *I2Cx) {
+    uint32_t timeout = 1000000;
+    while ((I2Cx->RX_STATUS & I2C_DONE_BIT) == 0) {
+        if (--timeout == 0) break;  // 무한루프 방지
+    }
+    I2Cx->COMMAND = 0x00;  // 명령 클리어 → done_reg도 클리어됨
+}
+
+void I2C_CMD_START(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_START_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_WRITE(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_WRITE_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_READ(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_READ_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_STOP(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_STOP_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+uint8_t I2C_Write_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr, uint8_t tx_data) {
+	I2C_CMD_START(I2Cx);
+
+	I2Cx->TX_REG = (slave_addr << 1) | 0;
+	I2C_CMD_WRITE(I2Cx);
+
+	if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2Cx); // 대답이 없으니 통신 강제 종료
+		return 1;           // 에러(1) 반환
+	}
+
+	I2Cx->TX_REG = tx_data;
+	I2C_CMD_WRITE(I2Cx);
+
+	if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2Cx); // 대답이 없으니 통신 강제 종료
+		return 1;           // 에러(1) 반환
+	}
+
+	I2C_CMD_STOP(I2Cx);
+	return 0;
+}
+
+uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr, uint8_t *rx_data) {
+    // START
+    I2C_CMD_START(I2Cx);
+
+    // 슬레이브 주소 + Read(1) 전송
+    I2Cx->TX_REG = (slave_addr << 1) | 1;
+    I2C_CMD_WRITE(I2Cx);
+    if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+        I2C_CMD_STOP(I2Cx);
+        return 1;  // NACK 에러
+    }
+
+    // 데이터 읽기ack_in=0 (ACK 전송, 단일 바이트면 NACK=0x100도 가능)
+    I2Cx->TX_REG = 0x00;  //  핵심 수정: ack_in=0 (ACK)
+    I2C_CMD_READ(I2Cx);
+
+    // rx_data는 RX_STATUS[7:0]
+    *rx_data = (uint8_t)(I2Cx->RX_STATUS & 0xFF);
+
+    I2C_CMD_STOP(I2Cx);
+    return 0;
+}

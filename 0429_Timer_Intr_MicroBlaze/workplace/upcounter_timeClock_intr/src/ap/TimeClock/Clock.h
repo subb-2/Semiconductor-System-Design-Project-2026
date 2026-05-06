@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "../../driver/FND/FND.h"
 #include "../../driver/Button/Button.h"
+#include "../DispService/DispService.h"
 
 //시계 데이터 정의?
 typedef struct {

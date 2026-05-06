@@ -9,119 +9,41 @@
 #include "../../HAL/GPIO/GPIO.h"
 #include "../../common/common.h"
 
-round_stat_t round_state = round1;
+// LED Driver 구현하기
 
-void LED_Init() {
-	GPIO_SetMode(LED_PORT,
-			LED_PIN_0 | LED_PIN_1 | LED_PIN_2 | LED_PIN_3 | LED_PIN_4
-					| LED_PIN_5 | LED_PIN_6 | LED_PIN_7, OUTPUT);
-}
-
-void LED_SetPort(GPIO_Typedef_t *LED_Port, uint32_t LED_Pin, int OnOff) {
-	GPIO_WritePin(LED_Port, LED_Pin, OnOff);
+void Led_Init(hLed *hled, GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN)
+{
+	hled->GPIOx = GPIOx;
+	hled->GPIO_PIN = GPIO_PIN;
+	GPIO_SetMode(hled->GPIOx, hled->GPIO_PIN, OUTPUT);
 }
 
-void LED_Count_Mode_ON() {
-	LED_SetPort(LED_PORT, LED_PIN_0, ON);
-}
-void LED_Count_Mode_OFF() {
-	LED_SetPort(LED_PORT, LED_PIN_0, OFF);
-}
-void LED_Clock_Mode_ON() {
-	LED_SetPort(LED_PORT, LED_PIN_1, ON);
-}
-void LED_Clock_Mode_OFF() {
-	LED_SetPort(LED_PORT, LED_PIN_1, OFF);
+void LED_On(hLed *hled) // LED 1개 On
+{
+	//LED가 GPIO를 부른 것
+	//GPIO는 누가 나를 불렀는지 모름
+	//caller만 누구를 부르는지 알고 있음
+	GPIO_WritePin(hled->GPIOx, hled->GPIO_PIN, SET);
+	//범용으로 사용가능한 함수
 }
 
-void LED_Clock_FND_HM() {
-	LED_SetPort(LED_PORT, LED_PIN_2, ON);
-	LED_SetPort(LED_PORT, LED_PIN_3, OFF);
-}
-void LED_Clock_FND_SMS() {
-	LED_SetPort(LED_PORT, LED_PIN_3, ON);
-	LED_SetPort(LED_PORT, LED_PIN_2, OFF);
+void LED_Off(hLed *hled) // LED 1개 Off
+{
+	GPIO_WritePin(hled->GPIOx, hled->GPIO_PIN, RESET);
 }
 
-int LED_Delay_Counter() {
-	static uint32_t prevTime = 0;
-	if (millis() - prevTime <= 100 - 1) {
-		return 0;
-	}
-	prevTime = millis();
-	return 1;
-}
-int LED_Delay_Clock() {
-	static uint32_t prevTime = 0;
-	if (millis() - prevTime <= 100 - 1) {
-		return 0;
-	}
-	prevTime = millis();
-	return 1;
-}
-void LED_Round_UpCounter() {
-	switch (round_state) {
-	case round1:
-		LED_SetPort(LED_PORT, LED_PIN_4, OFF);
-		if (LED_Delay_Counter() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_4, ON);
-			round_state = round2;
-		}
-		break;
-	case round2:
-		LED_SetPort(LED_PORT, LED_PIN_5, OFF);
-		if (LED_Delay_Counter() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_5, ON);
-			round_state = round3;
-		}
-		break;
-	case round3:
-		LED_SetPort(LED_PORT, LED_PIN_6, OFF);
-		if (LED_Delay_Counter() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_6, ON);
-			round_state = round4;
-		}
-		break;
-	case round4:
-		LED_SetPort(LED_PORT, LED_PIN_7, OFF);
-		if (LED_Delay_Counter() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_7, ON);
-			round_state = round1;
-		}
-		break;
-	}
+void LED_Toggle(hLed *hled) // LED 1개 Toggle
+{
+	GPIO_TogglePin(hled->GPIOx, hled->GPIO_PIN, RESET);
 }
 
-void LED_Round_Clock() {
-	switch (round_state) {
-	case round1:
-		LED_SetPort(LED_PORT, LED_PIN_7, OFF);
-		if (LED_Delay_Clock() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_7, ON);
-			round_state = round2;
-		}
-		break;
-	case round2:
-		LED_SetPort(LED_PORT, LED_PIN_6, OFF);
-		if (LED_Delay_Clock() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_6, ON);
-			round_state = round3;
-		}
-		break;
-	case round3:
-		LED_SetPort(LED_PORT, LED_PIN_5, OFF);
-		if (LED_Delay_Clock() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_5, ON);
-			round_state = round4;
-		}
-		break;
-	case round4:
-		LED_SetPort(LED_PORT, LED_PIN_4, OFF);
-		if (LED_Delay_Clock() == 1) {
-			LED_SetPort(LED_PORT, LED_PIN_4, ON);
-			round_state = round1;
-		}
-		break;
-	}
+// LED GPIOC 8개의 pin과 연결되어 있음, GPIOC Port에 8개의 값을 동시에 Write, GPIOC ODR에 write
+void LED_WritePort(hLed *hled, uint8_t data)
+{
+	GPIO_WritePort(hled->GPIOx, data);
 }
-
+// LED GPIOC 8개의 pin과 연결되어 있음, GPIOC Port에 8개의 값을 동시에 Read, GPIOC ODR 값 read
+uint8_t LED_ReadPort(hLed *hled)
+{
+	return (uint8_t)GPIO_ReadPort(hled->GPIOx);
+}

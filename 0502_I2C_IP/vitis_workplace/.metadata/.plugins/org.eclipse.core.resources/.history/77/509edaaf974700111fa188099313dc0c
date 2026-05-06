@@ -1,0 +1,13 @@
+/*
+ * I2C.h
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+#ifndef SRC_HAL_I2C_I2C_H_
+#define SRC_HAL_I2C_I2C_H_
+
+
+
+#endif /* SRC_HAL_I2C_I2C_H_ */

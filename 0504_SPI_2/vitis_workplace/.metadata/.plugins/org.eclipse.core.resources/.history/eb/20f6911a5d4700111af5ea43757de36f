@@ -1,0 +1,20 @@
+/*
+ * SPI.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+
+#define SPI_BASEADDR 0x44A60000
+
+#define SPI ((GPIO_Typedef_t *) (SPI_BASEADDR))
+
+#define INPUT 0
+#define OUTPUT 1
+
+typedef struct {
+	uint32_t CR;
+	uint32_t TX;
+	uint32_t RX;
+}SPI_Typedef_f;

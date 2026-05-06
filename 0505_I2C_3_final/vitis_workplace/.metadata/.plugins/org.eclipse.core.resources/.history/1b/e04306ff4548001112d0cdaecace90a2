@@ -1,0 +1,110 @@
+/*
+ * I2C_ap.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+#include "I2C_ap.h"
+
+void I2C_ap_Init() {
+
+	Button_Init(&btn_Write, GPIOA, GPIO_PIN_5);
+	Button_Init(&btn_Read, GPIOA, GPIO_PIN_7);
+
+	GPIO_SetMode(GPIOB, 0xFF, INPUT);
+	GPIO_SetMode(GPIOC, 0xFF, OUTPUT);
+
+	xil_printf("=== I2C Application Initialized ===\r\n");
+}
+void I2C_ap_Write_Execute() {
+	uint8_t master_sw_data = (uint8_t) (GPIO_ReadPort(GPIOB) & 0xFF);
+	xil_printf("[WRITE] Slave addr byte: 0x%02X\r\n", (SLAVE_ADDR << 1) | 0);
+	xil_printf("[WRITE] Sending SW value: 0x%02X\r\n", master_sw_data);
+
+	// START
+	xil_printf(" -> CMD_START...\r\n");
+	I2C_CMD_START(I2C);
+	xil_printf(" -> CMD_START done\r\n");
+	xil_printf(" -> CMD_START done, STATUS: 0x%08X\r\n", I2C->TX_REG);
+
+	// 주소 전송
+	I2C->TX_REG = (SLAVE_ADDR << 1) | 0;
+	xil_printf(" -> CMD_WRITE addr...\r\n");
+	I2C_CMD_WRITE(I2C);
+	xil_printf(" -> ACK_OUT: %d\r\n", (I2C->RX_STATUS >> 8) & 1);
+
+	if (I2C->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2C);
+		xil_printf(" -> Error: Slave NACK on ADDR!\r\n");
+		return;
+	}
+
+	// 데이터 전송
+	I2C->TX_REG = master_sw_data;
+	I2C_CMD_WRITE(I2C);
+	xil_printf(" -> ACK_OUT: %d\r\n", (I2C->RX_STATUS >> 8) & 1);
+
+	if (I2C->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2C);
+		xil_printf(" -> Error: Slave NACK on DATA!\r\n");
+		return;
+	}
+
+	I2C_CMD_STOP(I2C);
+	xil_printf(" -> Success!\r\n");
+}
+
+//void I2C_ap_Write_Execute() {
+//	uint8_t master_sw_data = (uint8_t) (GPIO_ReadPort(GPIOB) & 0xFF);
+//	xil_printf("[WRITE] Slave addr byte: 0x%02X\r\n", (SLAVE_ADDR << 1) | 0);
+//	xil_printf("[WRITE] Sending SW value: 0x%02X\r\n", master_sw_data);
+//
+//	if (I2C_Write_Data(I2C, SLAVE_ADDR, master_sw_data) == 0) {
+//		xil_printf(" -> Success!\r\n");
+//	} else {
+//		xil_printf(" -> Error: Slave NACK!\r\n");
+//	}
+//}
+
+//void I2C_ap_Read_Execute() {
+//	uint8_t slave_sw_data = 0;
+//
+//	xil_printf("[READ] Requesting data...\r\n");
+
+// 1. I2C로 데이터 읽어오기
+//	if (I2C_Read_Data(I2C, SLAVE_ADDR, &slave_sw_data) == 0) {
+//		xil_printf(" -> Success! Received: 0x%02X\r\n", slave_sw_data);
+
+// 2. 읽어온 값을 작성하신 함수를 이용해 마스터 LED 포트에 한 번에 출력!
+//		GPIO_WritePort(GPIOC, slave_sw_data);
+//	} else {
+//		xil_printf(" -> Error: Slave NACK!\r\n");
+//	}
+//}
+void I2C_ap_Read_Execute() {
+    uint8_t slave_sw_data = 0;
+    xil_printf("[READ] Requesting data...\r\n");
+
+    // 1. START 전송
+    I2C_CMD_START(I2C);
+
+    // 2. 주소 전송 (Read 모드)
+    I2C->TX_REG = (SLAVE_ADDR << 1) | 1;
+    I2C_CMD_WRITE(I2C);
+
+    // ★ NACK 처리
+    if (I2C->RX_STATUS & (1 << 8)) {
+        xil_printf(" -> Error: Slave NACK on ADDR!\r\n");
+        I2C_CMD_STOP(I2C);
+        return;
+    }
+
+    // 3. 단일 바이트 읽기 및 NACK 전송 (이 한 줄만 있으면 됩니다!)
+    slave_sw_data = I2C_Read_Data(I2C, 1);
+
+    // 4. 통신 안전하게 종료
+    I2C_CMD_STOP(I2C);
+
+    xil_printf(" -> Success! Received: 0x%02X\r\n", slave_sw_data);
+}

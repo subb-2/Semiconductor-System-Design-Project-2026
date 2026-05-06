@@ -76,6 +76,14 @@ void TimeClock_DispTime() {
 	} else {
 		FND_SetDP(FND_DIGIT_100, OFF);
 	}
+	static uint32_t prevShiftTime = 0;
+	uint32_t curShiftTime;
+	curShiftTime = millis();
+
+	if(curShiftTime - prevShiftTime >= 499) {
+		prevShiftTime = curShiftTime;
+		Disp_ShiftLed(DISP_TIME_CLOCK);
+	}
 
 }
 
@@ -84,8 +92,10 @@ void TimeClock_DispHourMin() {
 
 	timeNum = timeClock.hour * 100 + timeClock.min;
 
-	FND_SetNum(timeNum);
-	LED_Clock_FND_HM();
+	//FND_SetNum(timeNum);
+	Disp_TimeClock(timeNum);
+	Disp_SetTimeMode(DISP_TIME_HHMM);
+	//Disp_ShiftLed(DISP_TIME_CLOCK);
 }
 
 void TimeClock_DispSecMSec() {
@@ -93,8 +103,10 @@ void TimeClock_DispSecMSec() {
 
 	timeNum = timeClock.sec * 100 + timeClock.msec;
 
-	FND_SetNum(timeNum);
-	LED_Clock_FND_SMS();
+	//FND_SetNum(timeNum);
+	Disp_TimeClock(timeNum);
+	Disp_SetTimeMode(DISP_TIME_SSMS);
+
 
 }
 

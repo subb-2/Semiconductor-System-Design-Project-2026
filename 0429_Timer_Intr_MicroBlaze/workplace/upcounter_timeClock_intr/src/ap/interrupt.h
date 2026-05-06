@@ -14,6 +14,7 @@
 #include "../common/common.h"
 #include "UPCounter/UPCounter.h"
 #include "TimeClock/Clock.h"
+#include "DispService/DispService.h"
 
 #define INTC_DEV_ID XPAR_INTC_0_DEVICE_ID
 #define TMR1_DEV_ID XPAR_TMR_1_DEVICE_ID
@@ -22,5 +23,8 @@
 void TMR1_ISR(void *CallbackRef);
 void TMR2_ISR(void *CallbackRef);
 int SetupInterruptSystem();
+void TMR0_Init();
+void TMR1_Init();
+void TMR2_Init();
 
 #endif /* SRC_AP_INTERRUPT_H_ */

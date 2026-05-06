@@ -1,0 +1,26 @@
+/*
+ * I2C_ap.h
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+#ifndef SRC_AP_I2C_AP_I2C_AP_H_
+#define SRC_AP_I2C_AP_I2C_AP_H_
+
+#include <stdint.h>
+#include "../../driver/Button/Button.h"
+#include "../../HAL/I2C/I2C.h"
+#include "../../HAL/GPIO/GPIO.h"
+#include "xil_printf.h"
+
+#define SLAVE_ADDR 0x12
+
+hBtn_t btn_Write;
+hBtn_t btn_Read;
+
+void I2C_ap_Init();
+void I2C_ap_Write_Execute();
+void I2C_ap_Read_Execute();
+
+#endif /* SRC_AP_I2C_AP_I2C_AP_H_ */

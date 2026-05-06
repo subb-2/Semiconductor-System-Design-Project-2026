@@ -10,7 +10,7 @@
 # source D:\system_verilog\0429_Timer_Intr_MicroBlaze\workplace\upcounter_timeClock_intr_system\_ide\scripts\debugger_upcounter_timeclock_intr-default.tcl
 # 
 connect -url tcp:127.0.0.1:3121
-targets -set -filter {jtag_cable_name =~ "Digilent Basys3 210183BE0FD1A" && level==0 && jtag_device_ctx=="jsn-Basys3-210183BE0FD1A-0362d093-0"}
+targets -set -filter {jtag_cable_name =~ "Digilent Basys3 210183BE0E33A" && level==0 && jtag_device_ctx=="jsn-Basys3-210183BE0E33A-0362d093-0"}
 fpga -file D:/system_verilog/0429_Timer_Intr_MicroBlaze/workplace/upcounter_timeClock_intr/_ide/bitstream/design_1_wrapper.bit
 targets -set -nocase -filter {name =~ "*microblaze*#0" && bscan=="USER2" }
 loadhw -hw D:/system_verilog/0429_Timer_Intr_MicroBlaze/workplace/design_1_wrapper/export/design_1_wrapper/hw/design_1_wrapper.xsa -regs

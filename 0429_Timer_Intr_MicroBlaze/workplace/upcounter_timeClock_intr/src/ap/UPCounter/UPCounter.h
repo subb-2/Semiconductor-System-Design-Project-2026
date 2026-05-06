@@ -11,6 +11,7 @@
 #include "../../driver/FND/FND.h"
 #include "../../driver/Button/Button.h"
 #include "../../common/common.h"
+#include "../DispService/DispService.h"
 
 typedef enum{
    STOP,

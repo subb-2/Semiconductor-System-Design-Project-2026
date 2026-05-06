@@ -1,0 +1,18 @@
+timestamp=[2026-05-05 15:29:59], mode=WORKBENCH_START, duration=0:00:05.090, duration_ms=5090, data={}
+timestamp=[2026-05-05 15:29:59], mode=WORKBENCH_UI_INIT, duration=0:00:00.384, duration_ms=384, data={editors_count=0, platform_editors_count=0, projects_count=0, platform_projects_count=0, active_platform_editor=false, projects=}
+timestamp=[2026-05-05 15:30:02], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:02.508, duration_ms=2508, data={}
+timestamp=[2026-05-05 15:30:35], mode=APP_CREATION, duration=0:00:05.667, duration_ms=5667, data={name=I2C_4, project_type=sdk, os=standalone, processor=microblaze, runtime=cpp, platform=design_1_wrapper, application_type=application}
+timestamp=[2026-05-05 15:32:11], mode=PLATFORM_GENERATION, duration=0:00:05.437, duration_ms=5437, data={name=design_1_wrapper}
+timestamp=[2026-05-05 15:32:13], mode=BUILD, duration=0:00:02.185, duration_ms=2185, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 15:32:46], mode=BUILD, duration=0:00:00.278, duration_ms=278, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 15:32:52], mode=BUILD, duration=0:00:01.726, duration_ms=1726, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 15:38:39], mode=BUILD, duration=0:00:00.890, duration_ms=890, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:03:33], mode=BUILD, duration=0:00:00.731, duration_ms=731, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:09:24], mode=BUILD, duration=0:00:01.505, duration_ms=1505, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:10:55], mode=BUILD, duration=0:00:02.951, duration_ms=2951, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:14:03], mode=BUILD, duration=0:00:00.874, duration_ms=874, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:16:01], mode=BUILD, duration=0:00:00.552, duration_ms=552, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:16:53], mode=BUILD, duration=0:00:00.682, duration_ms=682, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:18:25], mode=BUILD, duration=0:00:04.151, duration_ms=4151, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:28:44], mode=BUILD, duration=0:00:03.756, duration_ms=3756, data={name=I2C_4, configuration=Debug, clean_build=false}
+timestamp=[2026-05-05 16:29:30], mode=BUILD, duration=0:00:00.253, duration_ms=253, data={name=I2C_4, configuration=Debug, clean_build=false}

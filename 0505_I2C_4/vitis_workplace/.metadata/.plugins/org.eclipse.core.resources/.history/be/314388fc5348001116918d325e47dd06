@@ -1,0 +1,72 @@
+/*
+ * I2C.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+#include "xil_printf.h"
+#include "I2C.h"
+#include "../../common/common.h"
+// I2C.c
+void I2C_Wait_Done(I2C_Typedef_t *I2Cx) {
+    uint32_t timeout = 0;
+    while (!(I2Cx->RX_STATUS & (1 << 10))) {
+        if (++timeout > 1000000) {
+            xil_printf("[ERROR] I2C Wait Done Timeout!\r\n");
+            break;
+        }
+    }
+    I2Cx->COMMAND = 0x00;
+    for (volatile int i = 0; i < 100; i++);
+}
+
+void I2C_CMD_START(I2C_Typedef_t *I2Cx) {
+    I2Cx->COMMAND = (1 << I2C_CMD_START_BIT);
+    I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_WRITE(I2C_Typedef_t *I2Cx) {
+    I2Cx->COMMAND = (1 << I2C_CMD_WRITE_BIT);
+    I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_READ(I2C_Typedef_t *I2Cx) {
+    I2Cx->COMMAND = (1 << I2C_CMD_READ_BIT);
+    I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_STOP(I2C_Typedef_t *I2Cx) {
+    I2Cx->COMMAND = (1 << I2C_CMD_STOP_BIT);
+    I2C_Wait_Done(I2Cx);
+}
+
+uint8_t I2C_Write_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr, uint8_t tx_data) {
+    I2C_CMD_START(I2Cx);
+
+    I2Cx->TX_REG = (slave_addr << 1) | 0;
+    I2C_CMD_WRITE(I2Cx);
+    if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+        I2C_CMD_STOP(I2Cx);
+        return 1;
+    }
+
+    I2Cx->TX_REG = tx_data;
+    I2C_CMD_WRITE(I2Cx);
+    if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+        I2C_CMD_STOP(I2Cx);
+        return 1;
+    }
+
+    I2C_CMD_STOP(I2Cx);
+    return 0;
+}
+
+uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t ack) {
+    if (ack == 1) {
+        I2Cx->TX_REG = I2C_ACK_IN_BIT;
+    } else {
+        I2Cx->TX_REG = 0x00;
+    }
+    I2C_CMD_READ(I2Cx);
+    return (uint8_t)(I2Cx->RX_STATUS & 0xFF);
+}

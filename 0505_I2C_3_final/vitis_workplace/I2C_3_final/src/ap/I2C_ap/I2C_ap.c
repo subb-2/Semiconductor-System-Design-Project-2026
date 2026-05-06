@@ -1,0 +1,68 @@
+/*
+ * I2C_ap.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+#include "I2C_ap.h"
+
+void I2C_ap_Init() {
+
+	Button_Init(&btn_Write, GPIOA, GPIO_PIN_5);
+	Button_Init(&btn_Read, GPIOA, GPIO_PIN_7);
+
+	GPIO_SetMode(GPIOB, 0xFF, INPUT);
+	GPIO_SetMode(GPIOC, 0xFF, OUTPUT);
+
+	xil_printf("=== I2C Application Initialized ===\r\n");
+}
+void I2C_ap_Write_Execute() {
+	uint8_t master_sw_data = (uint8_t) (GPIO_ReadPort(GPIOB) & 0xFF);
+	xil_printf("[WRITE] Slave addr byte: 0x%02X\r\n", (SLAVE_ADDR << 1) | 0);
+	xil_printf("[WRITE] Sending SW value: 0x%02X\r\n", master_sw_data);
+
+	// START
+	xil_printf(" -> CMD_START...\r\n");
+	I2C_CMD_START(I2C);
+	xil_printf(" -> CMD_START done\r\n");
+	xil_printf(" -> CMD_START done, STATUS: 0x%08X\r\n", I2C->TX_REG);
+
+	// 林家 傈价
+	I2C->TX_REG = (SLAVE_ADDR << 1) | 0;
+	xil_printf(" -> CMD_WRITE addr...\r\n");
+	I2C_CMD_WRITE(I2C);
+	xil_printf(" -> ACK_OUT: %d\r\n", (I2C->RX_STATUS >> 8) & 1);
+
+	if (I2C->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2C);
+		xil_printf(" -> Error: Slave NACK on ADDR!\r\n");
+		return;
+	}
+
+	// 单捞磐 傈价
+	I2C->TX_REG = master_sw_data;
+	I2C_CMD_WRITE(I2C);
+	xil_printf(" -> ACK_OUT: %d\r\n", (I2C->RX_STATUS >> 8) & 1);
+
+	if (I2C->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2C);
+		xil_printf(" -> Error: Slave NACK on DATA!\r\n");
+		return;
+	}
+
+	I2C_CMD_STOP(I2C);
+	xil_printf(" -> Success!\r\n");
+}
+void I2C_ap_Read_Execute() {
+    uint8_t slave_sw_data = 0;
+    I2C_CMD_START(I2C);
+    I2C->TX_REG = (SLAVE_ADDR << 1) | 1;
+    I2C_CMD_WRITE(I2C);  // ADDR 傈价
+
+    slave_sw_data = I2C_Read_Data(I2C, 1);
+    xil_printf(" -> Final rx: 0x%02X\r\n", slave_sw_data);
+
+    I2C_CMD_STOP(I2C);
+    GPIO_WritePort(GPIOC, slave_sw_data);
+}

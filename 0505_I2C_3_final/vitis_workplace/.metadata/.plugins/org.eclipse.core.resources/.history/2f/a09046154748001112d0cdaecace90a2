@@ -1,0 +1,136 @@
+/*
+ * I2C.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+#include "xil_printf.h"
+#include "I2C.h"
+#include "../../common/common.h"
+
+//void I2C_Wait_Done(I2C_Typedef_t *I2Cx) {
+//	uint32_t timeout = 1000000;
+//	while ((I2Cx->RX_STATUS & I2C_DONE_BIT) == 0) {
+//		if (--timeout == 0) {
+//			xil_printf("[TIMEOUT] done_reg not received!\r\n");
+//			break;  // 무한루프 방지
+//		}
+//	}
+//	I2Cx->COMMAND = 0x00;  // 명령 클리어 → done_reg도 클리어됨
+//	volatile uint32_t delay = 100;
+//	while (delay--);
+//}
+
+void I2C_Wait_Done(I2C_Typedef_t *I2Cx) {
+    uint32_t timeout = 0;
+
+    // DONE_BIT(bit 10)가 1이 될 때까지 대기
+    while (!(I2Cx->RX_STATUS & (1 << 10))) {
+        timeout++;
+        if (timeout > 1000000) { // 적절한 타임아웃 값 설정
+            xil_printf("[ERROR] I2C Wait Done Timeout!\r\n");
+            break;
+        }
+    }
+
+    // 명령을 완료했으므로 COMMAND 레지스터를 클리어 (FPGA 설계에 따라 필수일 수 있음)
+    I2Cx->COMMAND = 0x00;
+
+    // 하드웨어가 리셋될 시간을 위한 아주 짧은 지연
+    for(volatile int i=0; i<100; i++);
+}
+void I2C_CMD_START(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_START_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_WRITE(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_WRITE_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_READ(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_READ_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+void I2C_CMD_STOP(I2C_Typedef_t *I2Cx) {
+	I2Cx->COMMAND = (1 << I2C_CMD_STOP_BIT);
+	I2C_Wait_Done(I2Cx);
+}
+
+uint8_t I2C_Write_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr, uint8_t tx_data) {
+	I2C_CMD_START(I2Cx);
+
+	I2Cx->TX_REG = (slave_addr << 1) | 0;
+	I2C_CMD_WRITE(I2Cx);
+
+	if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2Cx); // 대답이 없으니 통신 강제 종료
+		return 1;           // 에러(1) 반환
+	}
+
+	I2Cx->TX_REG = tx_data;
+	I2C_CMD_WRITE(I2Cx);
+
+	if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+		I2C_CMD_STOP(I2Cx); // 대답이 없으니 통신 강제 종료
+		return 1;           // 에러(1) 반환
+	}
+
+	I2C_CMD_STOP(I2Cx);
+	return 0;
+}
+
+uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t ack) {
+
+    // 1. 읽기 동작 전, 슬레이브에게 보낼 응답(ACK/NACK) 설정 (0x04 레지스터)
+    if (ack == 1) {
+        I2Cx->TX_REG = I2C_ACK_IN_BIT; // bit 8 = 1 (NACK)
+    } else {
+        I2Cx->TX_REG = 0x00;           // bit 8 = 0 (ACK)
+    }
+
+    // 2. 읽기 명령어 트리거 (0x00 레지스터의 bit 2)
+    I2C_CMD_READ(I2Cx);
+
+    // 3. 수신된 데이터 추출 (0x08 레지스터의 하위 8비트 rx_data[7:0])
+    return (uint8_t)(I2Cx->RX_STATUS & 0xFF);
+}
+
+//uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t ack) {
+//    while (I2Cx->RX_STATUS & I2C_BUSY_BIT);
+
+//    if (ack == 1) {
+ //       I2Cx->TX_REG = I2C_CMD_READ_BIT | I2C_ACK_IN_BIT;
+  //  } else {
+   //     I2Cx->TX_REG = I2C_CMD_READ_BIT;
+    //}
+
+    //while ((I2Cx->TX_REG & I2C_DONE_BIT) == 0);
+
+   // return (uint8_t)(I2Cx->RX_STATUS);
+//}
+
+//uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr, uint8_t *rx_data) {
+//	// START
+//	I2C_CMD_START(I2Cx);
+
+	// 슬레이브 주소 + Read(1) 전송
+//	I2Cx->TX_REG = (slave_addr << 1) | 1;
+//	I2C_CMD_WRITE(I2Cx);
+//	if (I2Cx->RX_STATUS & I2C_ACK_OUT_BIT) {
+//		I2C_CMD_STOP(I2Cx);
+//		return 1;  // NACK 에러
+//	}
+
+	// 데이터 읽기ack_in=0 (ACK 전송, 단일 바이트면 NACK=0x100도 가능)
+	//I2Cx->TX_REG = 0x00;  //  핵심 수정: ack_in=0 (ACK)
+	//I2C_CMD_READ(I2Cx);
+
+	// rx_data는 RX_STATUS[7:0]
+	//*rx_data = (uint8_t) (I2Cx->RX_STATUS & 0xFF);
+
+	//I2C_CMD_STOP(I2Cx);
+	//return 0;
+//}

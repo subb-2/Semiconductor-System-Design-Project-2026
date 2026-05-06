@@ -1,0 +1,23 @@
+/*
+ * SW.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+
+#include "SW.h"
+
+#include "../../HAL/GPIO/GPIO.h"
+
+#define SW_PORT  GPIOB
+
+void SW_Init ()
+{
+	GPIO_SetMode(SW_PORT, 0xFF, INPUT);
+}
+
+void SW_ReadData (void)
+{
+	return (uint8_t)GPIO_ReadPort(SW_PORT);
+}

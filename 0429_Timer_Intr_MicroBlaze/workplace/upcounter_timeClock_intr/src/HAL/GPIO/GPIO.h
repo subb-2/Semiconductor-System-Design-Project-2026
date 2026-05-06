@@ -39,6 +39,7 @@ typedef struct {
 void GPIO_SetMode(GPIO_Typedef_t* GPIOx, uint32_t GPIO_PIN, int GPIO_Dir);
 void GPIO_WritePin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int level);
 uint32_t GPIO_ReadPin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN);
+void GPIO_TogglePin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int level);
 void GPIO_WritePort(GPIO_Typedef_t *GPIOx, int data);
 uint32_t GPIO_ReadPort(GPIO_Typedef_t *GPIOx);
 
