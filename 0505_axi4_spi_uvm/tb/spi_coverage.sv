@@ -5,25 +5,57 @@
 import uvm_pkg::*;
 `include "spi_seq_item.sv"
 
-class spi_coverage_exp extends uvm_subscriber #(spi_seq_item);
-    `uvm_component_utils(spi_coverage_exp)
+class spi_coverage extends uvm_subscriber #(spi_seq_item);
+    `uvm_component_utils(spi_coverage)
 
-    spi_seq_item tx;
+    logic [7:0] cov_tx_data_m, cov_tx_data_s;
 
     covergroup spi_cg_drv;
-        cp_clk_div: coverpoint tx.clk_div {
-            bins clk_10M = {4};
-            bins clk_1M = {49};
+        cp_tx_data_m: coverpoint cov_tx_data_m {
+            bins zero = {8'h00};
+            bins alt_01 = {8'h55};
+            bins alt_10 = {8'haa};
+            bins lsb_only = {8'h01};
+            bins msb_only = {8'h80};
+            bins range0 = {[8'h00 : 8'h0f]};
+            bins range1 = {[8'h10 : 8'h1f]};
+            bins range2 = {[8'h20 : 8'h2f]};
+            bins range3 = {[8'h30 : 8'h3f]};
+            bins range4 = {[8'h40 : 8'h4f]};
+            bins range5 = {[8'h50 : 8'h5f]};
+            bins range6 = {[8'h60 : 8'h6f]};
+            bins range7 = {[8'h70 : 8'h7f]};
+            bins range8 = {[8'h80 : 8'h8f]};
+            bins range9 = {[8'h90 : 8'h9f]};
+            bins rangea = {[8'ha0 : 8'haf]};
+            bins rangeb = {[8'hb0 : 8'hbf]};
+            bins rangec = {[8'hc0 : 8'hcf]};
+            bins ranged = {[8'hd0 : 8'hdf]};
+            bins rangee = {[8'he0 : 8'hef]};
+            bins rangef = {[8'hf0 : 8'hff]};
         }
-
-        cp_m_tx_data: coverpoint tx.m_tx_data {
-            bins low_half = {[8'h00 : 8'h7F]};
-            bins high_half = {[8'h80 : 8'hFF]};
-        }
-
-        cp_s_tx_data: coverpoint tx.s_tx_data {
-            bins low_half = {[8'h00 : 8'h7F]};
-            bins high_half = {[8'h80 : 8'hFF]};
+        cp_tx_data_s: coverpoint cov_tx_data_s {
+            bins zero = {8'h00};
+            bins alt_01 = {8'h55};
+            bins alt_10 = {8'haa};
+            bins lsb_only = {8'h01};
+            bins msb_only = {8'h80};
+            bins range0 = {[8'h00 : 8'h0f]};
+            bins range1 = {[8'h10 : 8'h1f]};
+            bins range2 = {[8'h20 : 8'h2f]};
+            bins range3 = {[8'h30 : 8'h3f]};
+            bins range4 = {[8'h40 : 8'h4f]};
+            bins range5 = {[8'h50 : 8'h5f]};
+            bins range6 = {[8'h60 : 8'h6f]};
+            bins range7 = {[8'h70 : 8'h7f]};
+            bins range8 = {[8'h80 : 8'h8f]};
+            bins range9 = {[8'h90 : 8'h9f]};
+            bins rangea = {[8'ha0 : 8'haf]};
+            bins rangeb = {[8'hb0 : 8'hbf]};
+            bins rangec = {[8'hc0 : 8'hcf]};
+            bins ranged = {[8'hd0 : 8'hdf]};
+            bins rangee = {[8'he0 : 8'hef]};
+            bins rangef = {[8'hf0 : 8'hff]};
         }
     endgroup
 
@@ -34,7 +66,8 @@ class spi_coverage_exp extends uvm_subscriber #(spi_seq_item);
     endfunction  //new()
 
     function void write(spi_seq_item t);
-        tx = t;
+        cov_tx_data_m = t.tx_data_m;
+        cov_tx_data_s = t.tx_data_s;
         spi_cg_drv.sample();
     endfunction
 
@@ -44,78 +77,16 @@ class spi_coverage_exp extends uvm_subscriber #(spi_seq_item);
                   "    Overall : %.1f%%", spi_cg_drv.get_coverage()), UVM_LOW);
         `uvm_info(
             get_type_name(), $sformatf(
-            "    clk_div : %.1f%%", spi_cg_drv.cp_clk_div.get_coverage()),
+            "    tx_data_m : %.1f%%", spi_cg_drv.cp_tx_data_m.get_coverage()),
             UVM_LOW);
         `uvm_info(
             get_type_name(), $sformatf(
-            "    m_tx_data : %.1f%%", spi_cg_drv.cp_m_tx_data.get_coverage()),
-            UVM_LOW);
-        `uvm_info(
-            get_type_name(), $sformatf(
-            "    s_tx_data : %.1f%%", spi_cg_drv.cp_s_tx_data.get_coverage()),
+            "    tx_data_s : %.1f%%", spi_cg_drv.cp_tx_data_s.get_coverage()),
             UVM_LOW);
         `uvm_info(get_type_name(), "===== Coverage Summary =====\n\n", UVM_LOW);
 
     endfunction
 
 endclass  //component 
-
-class spi_coverage_act extends uvm_subscriber #(spi_seq_item);
-    `uvm_component_utils(spi_coverage_act)
-
-    spi_seq_item tx;
-
-    covergroup spi_cg_mon;
-        // mosi_data
-        cp_mosi_data: coverpoint tx.mosi_data {
-            bins data_low       = {[8'h00 : 8'h3F]};
-            bins data_mid_low   = {[8'h40 : 8'h7F]};
-            bins data_mid_high  = {[8'h80 : 8'hBF]};
-            bins data_high      = {[8'hC0 : 8'hFF]};
-            bins data_all_zero  = {8'h00};
-            bins data_all_ones  = {8'hFF};
-            bins data_toggle_AA = {8'hAA}; 
-            bins data_toggle_55 = {8'h55}; 
-        }
-
-        // miso_data
-        cp_miso_data: coverpoint tx.miso_data {
-            bins data_low       = {[8'h00 : 8'h3F]};
-            bins data_mid_low   = {[8'h40 : 8'h7F]};
-            bins data_mid_high  = {[8'h80 : 8'hBF]};
-            bins data_high      = {[8'hC0 : 8'hFF]};
-            bins data_all_zero  = {8'h00};
-            bins data_all_ones  = {8'hFF};
-            bins data_toggle_AA = {8'hAA};
-            bins data_toggle_55 = {8'h55};
-        }
-    endgroup
-
-
-    function new(string name, uvm_component parent);
-        super.new(name, parent);
-        spi_cg_mon = new();
-    endfunction  //new()
-
-    function void write(spi_seq_item t);
-        tx = t;
-        spi_cg_mon.sample();
-    endfunction
-
-    virtual function void report_phase(uvm_phase phase);
-        `uvm_info(get_type_name(), "===== Coverage Summary =====", UVM_LOW);
-        `uvm_info(get_type_name(), $sformatf(
-                  "    Overall : %.1f%%", spi_cg_mon.get_coverage()), UVM_LOW);
-        `uvm_info(get_type_name(), $sformatf(
-                  "    MOSI data : %.1f%%", spi_cg_mon.cp_mosi_data.get_coverage()),
-                  UVM_LOW);
-        `uvm_info(get_type_name(), $sformatf(
-        "    MISO data : %.1f%%", spi_cg_mon.cp_miso_data.get_coverage()),
-        UVM_LOW);
-        `uvm_info(get_type_name(), "===== Coverage Summary =====\n\n", UVM_LOW);
-
-    endfunction
-
-endclass  //component
 
 `endif

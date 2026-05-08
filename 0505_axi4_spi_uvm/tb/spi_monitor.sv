@@ -8,8 +8,11 @@ import uvm_pkg::*;
 class spi_monitor extends uvm_monitor;
     `uvm_component_utils(spi_monitor)
 
-    uvm_analysis_port #(spi_seq_item) ap;
-    virtual spi_if spi_if;
+    uvm_analysis_port #(spi_seq_item)       ap;
+    virtual spi_if                          spi_if;
+
+    logic                             [7:0] tx_m_tracker;
+    logic                                   busy_prev;
 
 
     function new(string name, uvm_component parent);
@@ -30,58 +33,45 @@ class spi_monitor extends uvm_monitor;
     virtual task run_phase(uvm_phase phase);
         `uvm_info(get_type_name(), "SPI 모니터링 시작 ...", UVM_MEDIUM)
 
+        busy_prev = 0;
+        tx_m_tracker = 0;
+
         forever begin
             collect_transaction();
         end
     endtask  //run_phase
 
     task collect_transaction();
-
+        logic current_busy;
         spi_seq_item item;
 
-        logic [7:0] shift_mosi = 8'h00;
-        logic [7:0] shift_miso = 8'h00;
+        @(posedge spi_if.clk);
 
-        wait (spi_if.mon_cb.cs_n == 1'b0);
-        //@(spi_if.mon_cb);
-
-        for (int i = 0; i < 8; i++) begin
-            if (spi_if.mon_cb.sclk == 1'b1) begin
-                wait (spi_if.mon_cb.sclk == 1'b0);
-            end
-
-            wait (spi_if.mon_cb.sclk == 1'b1);
-            @(spi_if.mon_cb);
-
-            shift_mosi = {shift_mosi[6:0], spi_if.mon_cb.mosi};
-            shift_miso = {shift_miso[6:0], spi_if.mon_cb.miso};
-
+        //axi 버스에서 tx 레지스터(0x04)에 쓰는 데이터 엿보기
+        if (spi_if.awvalid && spi_if.awready && spi_if.awaddr == 4'h4 && spi_if.wvalid && spi_if.wready) begin
+            tx_m_tracker = spi_if.wdata[7:0];
         end
 
-        wait (spi_if.mon_cb.cs_n == 1'b1);
-        @(spi_if.mon_cb);
+        // rx 데이터 캡쳐 : busy가 1에서 0으로 떨어지는 순간을 감지
+        if (spi_if.rvalid && spi_if.rready && spi_if.araddr == 4'h8) begin
+            current_busy = (spi_if.rdata & (1 << 8)) ? 1 : 0;
 
-        item           = spi_seq_item::type_id::create("mon_item");
+            if (busy_prev == 1 && current_busy == 0) begin
+                item = spi_seq_item::type_id::create("item");
+                item.tx_data_m = tx_m_tracker;
+                item.tx_data_s = spi_if.tx_data;
+                item.rx_data_m = spi_if.rdata[7:0];
+                item.rx_data_s = spi_if.rx_data;
+                item.rx_done = spi_if.rx_done;
 
-        item.clk_div   = spi_if.mon_cb.clk_div;
+                `uvm_info(get_type_name(), $sformatf("mon item: %s",
+                                                     item.convert2string()),
+                          UVM_MEDIUM)
 
-        item.m_tx_data = spi_if.mon_cb.m_tx_data;
-        item.s_tx_data = spi_if.mon_cb.s_tx_data;
-        item.m_rx_data = spi_if.mon_cb.m_rx_data;
-        item.s_rx_data = spi_if.mon_cb.s_rx_data;
-
-        item.mosi_data = shift_mosi;
-        item.miso_data = shift_miso;
-
-        `uvm_info(get_type_name(),
-                  $sformatf("mon item: %s", item.convert2string()), UVM_MEDIUM)
-
-        ap.write(item);
-
-        //wait(spi_if.mon_cb.m_done == 0);
-
-        `uvm_info(get_type_name(), $sformatf("mon spi 수집 완료 : %s",
-                                             item.convert2string()), UVM_MEDIUM)
+                ap.write(item);
+            end
+            busy_prev = current_busy;
+        end
 
     endtask  //collect_transaction
 

@@ -21,7 +21,7 @@ endclass //component
 class spi_rand_data_seq extends spi_seq;
     `uvm_object_utils(spi_rand_data_seq)
 
-    int num_loop = 0;
+    int num_loop = 10;
 
     function new(string name = "spi_rand_data_seq");
         super.new(name);

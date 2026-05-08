@@ -1,13 +1,13 @@
 <Command name="schRTLInfo"  delimiter="."  >
 <RTLBlock >
-<RTLInfo   name="state_0"  type="2"  fileName="./rtl/spi_master.sv"  >
-    <Seg beginLine="58"  endLine="115"  />
+<RTLInfo   name="state_0"  type="2"  fileName="./rtl/axi_top.v"  >
+    <Seg beginLine="165"  endLine="222"  />
   </RTLInfo>
- <Instance name="tb_spi.dut.U_SPI_MASTER"  />
+ <Instance name="tb_spi.dut.U_AXI_TOP.U_SPI_MASTER"  />
 </RTLBlock>
 <RTLBlock >
 <RTLInfo   name="state_1"  type="2"  fileName="./rtl/spi_slave.sv"  >
-    <Seg beginLine="56"  endLine="86"  />
+    <Seg beginLine="43"  endLine="83"  />
   </RTLInfo>
  <Instance name="tb_spi.dut.U_SPI_SLAVE"  />
 </RTLBlock>

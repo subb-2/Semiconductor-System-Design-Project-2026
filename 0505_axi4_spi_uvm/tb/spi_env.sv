@@ -12,32 +12,25 @@ class spi_env extends uvm_env;
 
     spi_agent      agt;
     spi_scoreboard scb;
-
-    spi_coverage_exp cov_exp;
-    spi_coverage_act cov_act;
+    spi_coverage   cov; 
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
-    endfunction  //new()
+    endfunction
 
     virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         agt = spi_agent::type_id::create("agt", this);
         scb = spi_scoreboard::type_id::create("scb", this);
-
-        cov_exp = spi_coverage_exp::type_id::create("cov_exp", this);
-        cov_act = spi_coverage_act::type_id::create("cov_act", this);
+        cov = spi_coverage::type_id::create("cov", this); 
     endfunction
 
     virtual function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
-        agt.drv.ap.connect(scb.exp_imp);
-        agt.mon.ap.connect(scb.act_imp);
-
-        agt.drv.ap.connect(cov_exp.analysis_export);
-        agt.mon.ap.connect(cov_act.analysis_export);
+        agt.mon.ap.connect(scb.ap_imp);
+        agt.mon.ap.connect(cov.analysis_export); 
     endfunction
 
-endclass  //component 
+endclass
 
 `endif

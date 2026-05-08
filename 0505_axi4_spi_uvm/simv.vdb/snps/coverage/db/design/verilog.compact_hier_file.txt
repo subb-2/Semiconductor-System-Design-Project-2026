@@ -1,0 +1,4 @@
+\$unit::./rtl/axi_s00.v::./rtl/axi_spi_top.sv...@1901451778 02
+tb_spi4070
+uvm_custom_install_recording4070
+uvm_custom_install_verdi_recording4070
