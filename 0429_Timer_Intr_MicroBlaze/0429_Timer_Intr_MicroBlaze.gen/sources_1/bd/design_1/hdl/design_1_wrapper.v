@@ -1,7 +1,7 @@
 //Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-//Date        : Wed Apr 29 16:17:00 2026
+//Date        : Thu May  7 11:57:48 2026
 //Host        : DESKTOP-7CFQ9ND running 64-bit major release  (build 9200)
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -15,6 +15,8 @@ module design_1_wrapper
     GPIOC,
     reset,
     sys_clock,
+    uart_rx,
+    uart_tx,
     usb_uart_rxd,
     usb_uart_txd);
   inout [7:0]GPIOA;
@@ -22,6 +24,8 @@ module design_1_wrapper
   inout [7:0]GPIOC;
   input reset;
   input sys_clock;
+  input uart_rx;
+  output uart_tx;
   input usb_uart_rxd;
   output usb_uart_txd;
 
@@ -30,6 +34,8 @@ module design_1_wrapper
   wire [7:0]GPIOC;
   wire reset;
   wire sys_clock;
+  wire uart_rx;
+  wire uart_tx;
   wire usb_uart_rxd;
   wire usb_uart_txd;
 
@@ -39,6 +45,8 @@ module design_1_wrapper
         .GPIOC(GPIOC),
         .reset(reset),
         .sys_clock(sys_clock),
+        .uart_rx(uart_rx),
+        .uart_tx(uart_tx),
         .usb_uart_rxd(usb_uart_rxd),
         .usb_uart_txd(usb_uart_txd));
 endmodule

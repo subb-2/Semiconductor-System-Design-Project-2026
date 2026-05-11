@@ -26,11 +26,11 @@ uint32_t GPIO_ReadPin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN)
 	//0이 아닌 것은 모두 참
 	return (GPIOx->IDR & GPIO_PIN) ? 1 : 0;
 }
-//포트 전체 한 번에 제어
 void GPIO_TogglePin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int level)
 {
 	GPIOx->ODR ^= GPIO_PIN;
 }
+//포트 전체 한 번에 제어
 void GPIO_WritePort(GPIO_Typedef_t *GPIOx, int data)
 {
 	GPIOx->ODR = data;

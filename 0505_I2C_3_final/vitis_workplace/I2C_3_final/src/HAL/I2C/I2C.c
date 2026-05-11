@@ -12,7 +12,6 @@
 void I2C_Wait_Done(I2C_Typedef_t *I2Cx) {
     uint32_t timeout = 0;
 
-    // 1. done_real이 1이 될 때까지 대기
     while (!(I2Cx->RX_STATUS & (1 << 10))) {
         if (++timeout > 1000000) {
             xil_printf("[ERROR] Timeout!\r\n");
@@ -23,7 +22,7 @@ void I2C_Wait_Done(I2C_Typedef_t *I2Cx) {
 }
 
 
-// CMD 함수들: COMMAND 세팅만, 클리어는 Wait_Done 후 다음 명령이 알아서 함
+
 void I2C_CMD_START(I2C_Typedef_t *I2Cx) {
     I2Cx->COMMAND = (1 << I2C_CMD_START_BIT);
     I2C_Wait_Done(I2Cx);
@@ -46,17 +45,13 @@ void I2C_CMD_STOP(I2C_Typedef_t *I2Cx) {
 }
 
 uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t ack) {
-    // 1. ack_in 먼저 세팅
     I2Cx->TX_REG = (ack == 1) ? I2C_ACK_IN_BIT : 0x00;
 
-    // 2.  이 줄 추가 (write 완료 보장)
     volatile uint32_t dummy = I2Cx->TX_REG;
     (void)dummy;
 
-    // 3. 그 다음 READ 명령
     I2Cx->COMMAND = (1 << I2C_CMD_READ_BIT);
 
-    // 이하 동일...
     uint32_t timeout = 0;
     while (!(I2Cx->RX_STATUS & I2C_DONE_BIT)) {
         if (++timeout > 1000000) {

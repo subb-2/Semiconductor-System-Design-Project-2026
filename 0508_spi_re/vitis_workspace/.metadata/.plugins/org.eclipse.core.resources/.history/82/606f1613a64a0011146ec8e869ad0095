@@ -1,0 +1,64 @@
+
+#include "xparameters.h"
+
+#define GPIO_BASE_ADDR XPAR_GPIO8_0_S00_AXI_BASEADDR
+
+typedef struct {
+	uint32_t CR;
+	uint32_t IDR;
+	uint32_t ODR;
+}GPIO_Typedef_t;
+
+#define GPIOA_BASEADDR 0x44A00000
+#define GPIOB_BASEADDR 0x44A10000
+#define GPIOC_BASEADDR 0x44A20000
+#define GPIOD_BASEADDR 0x44A30000
+
+#define GPIO_PIN_0 0x01 //0b00000001
+#define GPIO_PIN_1 0x02 //0b00000010
+#define GPIO_PIN_2 0x01 //0b00000100
+#define GPIO_PIN_3 0x01 //0b00001000
+#define GPIO_PIN_4 0x01 //0b00010000
+#define GPIO_PIN_5 0x01 //0b00100000
+#define GPIO_PIN_6 0x01 //0b01000000
+#define GPIO_PIN_7 0x01 //0b10000000
+
+//이것의 역할이 뭐지?
+#define RESET 0
+#define SET 1
+
+//핀의 방향 설정
+void GPIO_SetMode ()
+{
+
+}
+
+//특정 핀에 전기 신호를 보내서 조작
+void GPIO_WritePin()
+{
+
+}
+
+//특정 핀의 상태 읽어 오기
+uint32_t GPIO_ReadPin()
+{
+
+}
+
+//Toggle Pin
+void GPIO_TogglePin()
+{
+
+}
+
+//포트 전체 한 번에 제어
+void GPIO_WritePort()
+{
+
+}
+
+//포트 전체 한 번에 제어
+void GPIO_ReadPort()
+{
+
+}

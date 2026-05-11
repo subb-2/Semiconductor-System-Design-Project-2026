@@ -34,7 +34,6 @@ typedef struct {
 #define I2C_DONE_BIT    (1 << 10) // 명령어 수행 완료
 
 
-// I2C.h 추가
 #define I2C_CMD_READ_WITH_NACK_BIT  ((1 << I2C_CMD_READ_BIT) | (1 << 8))  // NACK read
 #define I2C_CMD_READ_WITH_ACK_BIT   (1 << I2C_CMD_READ_BIT)               // ACK read
 

@@ -13,7 +13,14 @@ module uart_v1_0_S00_AXI #(
     parameter integer C_S_AXI_ADDR_WIDTH = 4
 ) (
     // Users to add ports here
-
+    // TX 인터페이스
+    output wire [7:0] tx_data,
+    output wire       tx_valid,
+    input  wire       tx_ready,
+    // RX 인터페이스
+    input  wire [7:0] rx_data,
+    input  wire       rx_valid,
+    output wire       rx_ie,
     // User ports ends
     // Do not modify the ports beyond this line
 
@@ -102,15 +109,25 @@ module uart_v1_0_S00_AXI #(
     //-- Signals for user logic register space example
     //------------------------------------------------
     //-- Number of Slave Registers 4
-    reg [C_S_AXI_DATA_WIDTH-1:0] slv_reg0;
-    reg [C_S_AXI_DATA_WIDTH-1:0] slv_reg1;
-    reg [C_S_AXI_DATA_WIDTH-1:0] slv_reg2;
-    reg [C_S_AXI_DATA_WIDTH-1:0] slv_reg3;
+    reg [C_S_AXI_DATA_WIDTH-1:0] uart_sr; ////slv_reg0 [0] 번을 상태 Register
+    reg [C_S_AXI_DATA_WIDTH-1:0] uart_tdr;  //slv_reg1
+    reg [C_S_AXI_DATA_WIDTH-1:0] uart_rdr;  //slv_reg2
+    reg [C_S_AXI_DATA_WIDTH-1:0] uart_cr;  //slv_reg3
     wire slv_reg_rden;
     wire slv_reg_wren;
     reg [C_S_AXI_DATA_WIDTH-1:0] reg_data_out;
     integer byte_index;
     reg aw_en;
+
+    //TX 쪽!!
+    reg tx_valid_r;
+    assign tx_data = uart_tdr;  //레지스터에서 나가는 것!!
+    assign tx_valid = tx_valid_r;  //레지스터에서 나가는 것!!
+    assign rx_ie = uart_cr[0];  //uie
+
+    //RX 쪽!!
+    reg [7:0] rx_data_r;
+    reg rx_flag;  //rx가 다 들어왔는지 flag용도!(수신 완료flag)
 
     // I/O Connections assignments
 
@@ -191,68 +208,58 @@ module uart_v1_0_S00_AXI #(
     // These registers are cleared when reset (active low) is applied.
     // Slave register write enable is asserted when valid address and data are available
     // and the slave is ready to accept the write address and write data.
+    // 저장하는 영역임!!
+    //write!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     assign slv_reg_wren = axi_wready && S_AXI_WVALID && axi_awready && S_AXI_AWVALID;
 
+    //이것은 WRITE!!!!!!!!!!!!!!!!!
+    //tx_data register에 1을 쓰면  txdata로 나간다.
+    //ready신호는 상태 register에 들어가야한다. 
     always @(posedge S_AXI_ACLK) begin
         if (S_AXI_ARESETN == 1'b0) begin
-            slv_reg0 <= 0;
-            slv_reg1 <= 0;
-            slv_reg2 <= 0;
-            slv_reg3 <= 0;
+            uart_tdr   <= 0;
+            tx_valid_r <= 1'b0;
         end else begin
-            if (slv_reg_wren) begin
-                case (axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB])
-                    2'h0:
-                    for (
-                        byte_index = 0;
-                        byte_index <= (C_S_AXI_DATA_WIDTH / 8) - 1;
-                        byte_index = byte_index + 1
-                    )
-                    if (S_AXI_WSTRB[byte_index] == 1) begin
-                        // Respective byte enables are asserted as per write strobes 
-                        // Slave register 0
-                        slv_reg0[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                    end
-                    2'h1:
-                    for (
-                        byte_index = 0;
-                        byte_index <= (C_S_AXI_DATA_WIDTH / 8) - 1;
-                        byte_index = byte_index + 1
-                    )
-                    if (S_AXI_WSTRB[byte_index] == 1) begin
-                        // Respective byte enables are asserted as per write strobes 
-                        // Slave register 1
-                        slv_reg1[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                    end
-                    2'h2:
-                    for (
-                        byte_index = 0;
-                        byte_index <= (C_S_AXI_DATA_WIDTH / 8) - 1;
-                        byte_index = byte_index + 1
-                    )
-                    if (S_AXI_WSTRB[byte_index] == 1) begin
-                        // Respective byte enables are asserted as per write strobes 
-                        // Slave register 2
-                        slv_reg2[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                    end
-                    2'h3:
-                    for (
-                        byte_index = 0;
-                        byte_index <= (C_S_AXI_DATA_WIDTH / 8) - 1;
-                        byte_index = byte_index + 1
-                    )
-                    if (S_AXI_WSTRB[byte_index] == 1) begin
-                        // Respective byte enables are asserted as per write strobes 
-                        // Slave register 3
-                        slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                    end
-                    default: begin
-                        slv_reg0 <= slv_reg0;
-                        slv_reg1 <= slv_reg1;
-                        slv_reg2 <= slv_reg2;
-                        slv_reg3 <= slv_reg3;
-                    end
-                endcase
+            tx_valid_r <= 1'b0;
+            //write enable이 1일때 &아래 case문 참고!!
+            if(slv_reg_wren &&(axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]==2'h1))begin
+                if(S_AXI_WSTRB[0])begin //하위 1바이트만 볼것이다. 나머지는 반영X
+                    // tx_data와 tx_valid도 같이 나가야 한다. 
+                    uart_tdr[7:0] <= S_AXI_WDATA[7:0];
+                    tx_valid_r <= 1'b1;
+                end
+            end
+        end
+    end
+
+    //이것은 READ!!!!!!!!!!!!
+    always @(posedge S_AXI_ACLK) begin
+        if (S_AXI_ARESETN == 1'b0) begin
+            rx_data_r <= 0;  //내가 rx_data를 읽으면
+            rx_flag = 1'b0;
+        end else begin
+            //uart_rx 모듈에서 새 바이트 수신
+            if (rx_valid) begin
+                rx_data_r <= rx_data;
+                rx_flag   <= 1'b1;
+            end
+            //read enable이 1일때 &(이것은) 아래 case문 참고!! 
+            //호스트가 RX_DATA를 읽으면 플래그 클리어.
+            //flag 가 1이면 읽을 데이터가 있다는 뜻?!?!
+            if(slv_reg_rden &&(axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]==2'h2))begin
+                rx_flag <= 1'b0; //내가 rx_data를 읽으면 flag는 0이 된다. 
+            end
+        end
+    end
+
+    //interrupt의 AND gate를 만듦.
+    always @(posedge S_AXI_ACLK) begin
+        if (S_AXI_ARESETN == 1'b0) begin
+            uart_cr <= 0;
+        end else begin
+            //tx_valid_r <= 1'b0;
+            if(slv_reg_wren &&(axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]==2'h3))begin
+                uart_cr <= S_AXI_WDATA;
             end
         end
     end
@@ -340,11 +347,12 @@ module uart_v1_0_S00_AXI #(
     always @(*) begin
         // Address decoding for reading registers
         case (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB])
-            2'h0   : reg_data_out <= slv_reg0;
-            2'h1   : reg_data_out <= slv_reg1;
-            2'h2   : reg_data_out <= slv_reg2;
-            2'h3   : reg_data_out <= slv_reg3;
-            default : reg_data_out <= 0;
+            //slv_reg0; 이것이 상태 register!!!
+            2'h0: reg_data_out <= {{30{1'b0}}, rx_flag, tx_ready};
+            2'h1: reg_data_out <= uart_tdr;  //slv_reg1;
+            2'h2: reg_data_out <= {{24{1'b0}}, rx_data_r};  //slv_reg2;
+            2'h3: reg_data_out <= uart_cr;  //slv_reg3;
+            default: reg_data_out <= 0;
         endcase
     end
 

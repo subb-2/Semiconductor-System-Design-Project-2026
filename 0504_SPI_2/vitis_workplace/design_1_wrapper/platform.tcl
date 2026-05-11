@@ -19,3 +19,4 @@ platform active {design_1_wrapper}
 platform generate -quick
 platform generate
 platform generate
+platform generate

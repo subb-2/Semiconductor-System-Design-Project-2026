@@ -22,8 +22,7 @@ void GPIO_WritePin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int level)
 //특정 핀의 상태 읽어 오기
 uint32_t GPIO_ReadPin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN)
 {
-	//괄호 안이 0이면 거짓
-	//0이 아닌 것은 모두 참
+
 	return (GPIOx->IDR & GPIO_PIN) ? 1 : 0;
 }
 //포트 전체 한 번에 제어
