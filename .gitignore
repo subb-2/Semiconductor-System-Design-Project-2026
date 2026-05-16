@@ -26,3 +26,12 @@ Thumbs.db
 
 # vscode
 .vscode/
+
+# Simulation & Coverage tools
+*.vdb/
+*Log/
+*.conf
+*.rc
+*.key
+*.xml
+*log
