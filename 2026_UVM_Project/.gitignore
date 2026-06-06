@@ -1,0 +1,37 @@
+# simulation
+simv
+simv.daidir/
+csrc/
+*.log
+*.fsdb
+*.vcd
+*.out
+
+# compile
+*.o
+*.a
+*.so
+
+# waveform / debug
+*.wdb
+*.wlf
+
+# temp files
+*~
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# vscode
+.vscode/
+
+# Simulation & Coverage tools
+*.vdb/
+*Log/
+*.conf
+*.rc
+*.key
+*.xml
+*log
