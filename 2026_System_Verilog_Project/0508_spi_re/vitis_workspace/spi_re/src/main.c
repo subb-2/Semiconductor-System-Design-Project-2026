@@ -1,0 +1,78 @@
+
+#include <stdint.h>
+#include "xparameters.h"
+
+#define GPIO_BASE_ADDR XPAR_GPIO8_0_S00_AXI_BASEADDR
+
+typedef struct {
+	uint32_t CR;
+	uint32_t IDR;
+	uint32_t ODR;
+}GPIO_Typedef_t;
+
+#define GPIOA_BASEADDR 0x44A00000
+#define GPIOB_BASEADDR 0x44A10000
+#define GPIOC_BASEADDR 0x44A20000
+#define GPIOD_BASEADDR 0x44A30000
+
+#define GPIO_PIN_0 0x01 //0b00000001
+#define GPIO_PIN_1 0x02 //0b00000010
+#define GPIO_PIN_2 0x01 //0b00000100
+#define GPIO_PIN_3 0x01 //0b00001000
+#define GPIO_PIN_4 0x01 //0b00010000
+#define GPIO_PIN_5 0x01 //0b00100000
+#define GPIO_PIN_6 0x01 //0b01000000
+#define GPIO_PIN_7 0x01 //0b10000000
+
+//why 
+#define INPUT 0
+#define OUTPUT 1 
+
+#define RESET 0
+#define SET 1
+
+
+void GPIO_SetMode (GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int GPIO_Dir)
+{
+	if(GPIO_Dir == OUTPUT) {
+		GPIOx->CR |= GPIO_PIN;
+	} else {
+		GPIOx->CR &= ~(GPIO_PIN);
+	}
+}
+
+
+void GPIO_WritePin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int level)
+{
+	if (level == SET)
+	{
+		GPIOx->ODR |= GPIO_PIN;
+	} else {
+		GPIOx->ODR &= ~GPIO_PIN;
+	}
+	
+}
+
+//Toggle Pin
+void GPIO_TogglePin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN, int levle)
+{
+	GPIOx->ODR ^= GPIO_PIN;
+}
+
+uint32_t GPIO_ReadPin(GPIO_Typedef_t *GPIOx, uint32_t GPIO_PIN)
+{
+	return (GPIOx->IDR & GPIO_PIN) ? 1 : 0;
+}
+
+
+
+void GPIO_WritePort()
+{
+
+}
+
+
+void GPIO_ReadPort()
+{
+
+}

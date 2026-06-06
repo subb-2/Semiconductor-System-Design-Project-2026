@@ -1,0 +1,71 @@
+#include "xil_printf.h"
+
+#include "ap_main.h"
+#include "../HAL/TMR/TMR.h"
+//#include "../common/common.h"
+#include "UPCounter/UPCounter.h"
+#include "TimeClock/Clock.h"
+#include "interrupt.h"
+#include "../driver/Button/Button.h"
+#include "../driver/LED/LED.h"
+
+#include "DispService/DispService.h"
+
+typedef struct {
+	uint32_t SR;
+	uint32_t TDR;
+	uint32_t RDR;
+	uint32_t CR;
+}UART_Typedef_t;
+
+#define UART_BASE_ADDR XPAR_UART_0_S00_AXI_BASEADDR
+//uart 주소 = UART0
+#define UART0 ((UART_Typedef_t *)(UART_BASE_ADDR))
+
+
+hBtn_t hBtnMode;
+
+Mode_State_t curMode = WATCH;
+
+void ap_init() {
+	Button_Init(&hBtnMode, GPIOA, GPIO_PIN_5);
+	Disp_Init();
+
+	UpCounter_Init();
+	TimeClock_Init();
+
+	//인터럽트에 대한 시스템 설정
+	SetupInterruptSystem();
+	TMR0_Init();
+	TMR1_Init();
+	TMR2_Init();
+
+}
+
+void ap_excute() {
+	while (1) {
+
+		switch (curMode) {
+		case WATCH:
+			TimeClock_Excute();
+			Disp_SetMode(DISP_TIME_CLOCK);
+
+			if (Button_GetState(&hBtnMode) == ACT_RELEASED) {
+				curMode = COUNTER;
+				FND_SetDP(FND_DIGIT_100, OFF);
+			}
+
+			break;
+
+		case COUNTER:
+			UpCounter_Excute();
+			Disp_SetMode(DISP_UP_COUNTER);
+
+			if (Button_GetState(&hBtnMode) == ACT_RELEASED) {
+				curMode = WATCH;
+			}
+
+			break;
+		}
+	}
+}

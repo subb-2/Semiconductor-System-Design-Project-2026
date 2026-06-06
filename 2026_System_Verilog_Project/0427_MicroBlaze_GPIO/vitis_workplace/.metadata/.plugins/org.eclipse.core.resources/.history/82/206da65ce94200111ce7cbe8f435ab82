@@ -1,0 +1,51 @@
+
+
+#include "ap_main.h"
+#include "../common/common.h"
+#include "UpCounter/UpCounter.h"
+#include "Time/Time.h"
+#include "../driver/Button/Button.h"
+
+typedef enum {
+    MODE_WATCH = 0,
+    MODE_UPCOUNTER = 1
+} AppMode_t;
+
+AppMode_t currentAppMode = MODE_WATCH;
+hBtn_t hBtnMode;
+
+void ap_init()
+{
+    // 각 하위 서비스들 초기화
+    Watch_Init();
+    UpCounter_Init();
+
+    // 모드 변경 버튼 초기화 (남는 버튼 핀번호 확인 후 수정하세요! 예: PIN_5)
+    Button_Init(&hBtnMode, GPIOA, GPIO_PIN_5);
+}
+
+void ap_excute()
+{
+    while(1)
+    {
+        if (Button_GetState(&hBtnMode) == ACT_PUSHED) {
+
+            if (currentAppMode == MODE_WATCH) {
+                currentAppMode = MODE_UPCOUNTER;
+            } else {
+                currentAppMode = MODE_WATCH;
+            }
+
+            FND_DispAllOff();
+        }
+
+        if (currentAppMode == MODE_WATCH) {
+            Watch_Execute();
+        } else if (currentAppMode == MODE_UPCOUNTER) {
+            UpCounter_Excute();
+        }
+
+        millis_inc();
+        delay_ms(1);
+    }
+}

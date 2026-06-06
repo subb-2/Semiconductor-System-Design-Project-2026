@@ -1,0 +1,68 @@
+/*
+ * DispService.c
+ *
+ *  Created on: 2026. 5. 6.
+ *      Author: kccistc
+ */
+
+#include "DispService.h"
+
+
+
+hLed hLedUpCounterMode;
+hLed hLedTimeClockMode; // 이 포인터 주소를 넣어주면 바로 사용 가능
+hLed hLedTimeMode_hhmm;
+hLed hLedTimeMode_ssms;
+
+void Disp_SetMode(int mode) {
+	if (mode == DISP_TIME_CLOCK) {
+		LED_On(&hLedTimeClockMode);
+		LED_Off(&hLedUpCounterMode);
+	} else if (mode == DISP_UP_COUTNER) {
+		LED_On(&hLedUpCounterMode);
+		LED_Off(&hLedTimeClockMode);
+	}
+}
+
+void Disp_SetTimeMode(int mode) {
+	if (mode == DISP_TIME_HHMM) {
+		LED_On(&hLedTimeMode_hhmm);
+		LED_Off(&hLedTimeMode_ssms);
+	} else {
+		LED_Off(&hLedTimeMode_hhmm);
+		LED_On(&hLedTimeMode_ssms);
+	}
+}
+
+void Disp_Init() {
+	FND_Init();
+	Led_Init(&hLedTimeClockMode, LED_MODE_TIME_CLOCK_PORT,
+	LED_MODE_TIME_CLOCK_PIN);
+	Led_Init(&hLedUpCounterMode, LED_MODE_UP_COUNTER_PORT,
+	LED_MODE_UP_COUNTER_PIN);
+	Led_Init(&hLedTimeClockMode, LED_TIME_MODE_HH_MM_PORT,
+	LED_TIME_MODE_HH_MM_PIN);
+	Led_Init(&hLedUpCounterMode, LED_TIME_MODE_SS_MS_PORT,
+	LED_TIME_MODE_SS_MS_PIN);
+
+	Disp_SetMode(DISP_TIME_CLOCK);
+	Disp_SetTimeMode(DISP_TIME_HHMM);
+}
+
+void Disp_SetShift() {
+
+}
+
+void Disp_TimeHHMM() {
+
+}
+void Disp_TimeSSMS() {
+
+}
+void Disp_UpCounter(uint16_t num) {
+	FND_SetNum(num);
+}
+
+void Disp_ISR_Excute() {
+	FND_Digit();
+}

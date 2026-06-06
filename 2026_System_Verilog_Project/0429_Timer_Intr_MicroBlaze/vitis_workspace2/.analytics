@@ -1,0 +1,11 @@
+timestamp=[2026-05-07 12:17:01], mode=WORKBENCH_START, duration=0:00:05.677, duration_ms=5677, data={}
+timestamp=[2026-05-07 12:17:01], mode=WORKBENCH_UI_INIT, duration=0:00:00.335, duration_ms=335, data={editors_count=0, platform_editors_count=0, projects_count=0, platform_projects_count=0, active_platform_editor=false, projects=}
+timestamp=[2026-05-07 12:17:05], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:03.594, duration_ms=3594, data={}
+timestamp=[2026-05-07 12:19:06], mode=APP_CREATION, duration=0:00:07.348, duration_ms=7348, data={name=UpCounter_TimeClock_UART, project_type=sdk, os=standalone, processor=microblaze, runtime=cpp, platform=design_1_wrapper_uart, application_type=application}
+timestamp=[2026-05-07 12:20:11], mode=PLATFORM_GENERATION, duration=0:00:06.108, duration_ms=6108, data={name=design_1_wrapper_uart}
+timestamp=[2026-05-07 12:20:15], mode=BUILD, duration=0:00:04.366, duration_ms=4366, data={name=UpCounter_TimeClock_UART, configuration=Debug, clean_build=false}
+timestamp=[2026-05-07 12:54:19], mode=BUILD, duration=0:00:00.347, duration_ms=347, data={name=UpCounter_TimeClock_UART, configuration=Debug, clean_build=false}
+timestamp=[2026-05-07 12:56:10], mode=BUILD, duration=0:00:00.278, duration_ms=278, data={name=UpCounter_TimeClock_UART, configuration=Debug, clean_build=false}
+timestamp=[2026-05-07 12:56:27], mode=BUILD, duration=0:00:00.339, duration_ms=339, data={name=UpCounter_TimeClock_UART, configuration=Debug, clean_build=false}
+timestamp=[2026-05-07 12:57:16], mode=BUILD, duration=0:00:00.343, duration_ms=343, data={name=UpCounter_TimeClock_UART, configuration=Debug, clean_build=false}
+timestamp=[2026-05-07 12:57:34], mode=BUILD, duration=0:00:00.838, duration_ms=838, data={name=UpCounter_TimeClock_UART, configuration=Debug, clean_build=false}

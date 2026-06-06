@@ -1,0 +1,17 @@
+#include "ap/ap_main.h"
+
+int main()
+{
+
+	ap_init();
+
+	while(1) {
+		ap_excute();
+
+		char str[30] = {"Watch"};
+		//xil_printf("str : %s\n", str);
+		//xil_printf(" a(%d) + b(%d) = %d\n", a, b, sum);
+	}
+
+	return 0;
+}

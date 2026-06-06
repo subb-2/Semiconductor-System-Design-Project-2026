@@ -1,0 +1,13 @@
+/*
+ * I2C_ap.h
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+#ifndef SRC_AP_I2C_AP_I2C_AP_H_
+#define SRC_AP_I2C_AP_I2C_AP_H_
+
+
+
+#endif /* SRC_AP_I2C_AP_I2C_AP_H_ */

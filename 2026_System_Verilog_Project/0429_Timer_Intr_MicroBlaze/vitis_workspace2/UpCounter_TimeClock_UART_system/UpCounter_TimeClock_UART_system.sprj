@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<systemproject:SystemProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" xmlns:systemproject="http://www.xilinx.com/systemproject" name="UpCounter_TimeClock_UART_system" platform="D:/system_verilog/0429_Timer_Intr_MicroBlaze/vitis_workspace2/design_1_wrapper_uart/export/design_1_wrapper_uart/design_1_wrapper_uart.xpfm" platformUID="xilinx:basys3::0.0(custom)" sysConfig="design_1_wrapper_uart" runtime="cpp" rootFSLocation="" linuxImage="" sysroot="">
+  <configuration name="Debug" id="com.xilinx.sdx.system.managedbuilder.debugConfiguration.1570662197">
+    <configBuildOptions xsi:type="systemproject:SystemOptions">
+      <applications name="UpCounter_TimeClock_UART" domainName="standalone_microblaze_0" domainPrettyName="standalone_microblaze_0" appBuildConfig="Debug"/>
+      <options xsi:type="sdkproject:SdkOptions" generateSdCard="true"/>
+    </configBuildOptions>
+  </configuration>
+  <configuration name="Release" id="com.xilinx.sdx.system.managedbuilder.releaseConfiguration.2108619262">
+    <configBuildOptions xsi:type="systemproject:SystemOptions">
+      <applications name="UpCounter_TimeClock_UART" domainName="standalone_microblaze_0" domainPrettyName="standalone_microblaze_0" appBuildConfig="Release"/>
+      <options xsi:type="sdkproject:SdkOptions" generateSdCard="true"/>
+    </configBuildOptions>
+  </configuration>
+</systemproject:SystemProject>

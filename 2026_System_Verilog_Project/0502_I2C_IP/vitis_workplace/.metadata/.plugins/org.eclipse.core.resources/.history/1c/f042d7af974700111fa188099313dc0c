@@ -1,0 +1,96 @@
+/*
+ * I2C.c
+ *
+ *  Created on: 2026. 5. 4.
+ *      Author: kccistc
+ */
+
+
+#include "xparameters.h"
+#include <stdint.h>
+
+typedef struct {
+    uint32_t COMMAND;   // Offset 0x00: slv_reg0
+    uint32_t TX_REG;    // Offset 0x04: slv_reg1
+    uint32_t RX_STATUS; // Offset 0x08: slv_reg2
+    uint32_t RESERVED;  // Offset 0x0C: slv_reg3
+} I2C_Typedef_t;
+
+#define I2C_BASEADDR XPAR_I2C_0_S00_AXI_BASEADDR
+#define I2C ((I2C_Typedef_t *)(I2C_BASEADDR))
+
+#define I2C_CMD_START_BIT 0
+#define I2C_CMD_WRITE_BIT 1
+#define I2C_CMD_READ_BIT 2
+#define I2C_CMD_STOP_BIT 3
+
+// TX_REG 레지스터 (0x04)
+#define I2C_ACK_IN_BIT  (1 << 8)  // 1: NACK 전송, 0: ACK 전송 (Read 할 때 사용)
+
+// RX_STATUS 레지스터 (0x08)
+#define I2C_ACK_OUT_BIT (1 << 8)  // 슬레이브가 보낸 ACK 상태 (0이면 ACK 받음)
+#define I2C_BUSY_BIT    (1 << 9)  // I2C 동작 중
+#define I2C_DONE_BIT    (1 << 10) // 명령어 수행 완료
+
+static void I2C_Wait_Done (I2C_Typedef_t *I2Cx)
+{
+	while ((I2Cx->RX_STATUS & I2C_DONE_BIT) == 0);
+	//다음 동작을 위해 COMMAND 레지스터 초기화
+	I2Cx->COMMAND = 0x00;
+}
+
+void I2C_CMD_START(I2C_Typedef_t *I2Cx)
+{
+	I2Cx->COMMAND = (1 << I2C_CMD_START_BIT);
+	I2C_Wait_Done (I2Cx);
+}
+
+void I2C_CMD_WRITE(I2C_Typedef_t *I2Cx)
+{
+	I2Cx->COMMAND = (1 << I2C_CMD_WRITE_BIT);
+	I2C_Wait_Done (I2Cx);
+}
+
+void I2C_CMD_READ(I2C_Typedef_t *I2Cx)
+{
+	I2Cx->COMMAND = (1 << I2C_CMD_READ_BIT);
+	I2C_Wait_Done (I2Cx);
+}
+
+void I2C_CMD_STOP(I2C_Typedef_t *I2Cx)
+{
+	I2Cx->COMMAND = (1 << I2C_CMD_STOP_BIT);
+	I2C_Wait_Done (I2Cx);
+}
+
+void I2C_Write_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr, uint8_t tx_data)
+{
+	I2C_CMD_START(I2Cx);
+
+	I2Cx->TX_REG = (slave_addr << 1) | 0;
+	I2C_CMD_WRITE(I2Cx);
+
+	I2Cx->TX_REG = tx_data;
+	I2C_CMD_WRITE(I2Cx);
+
+	I2C_CMD_STOP(I2Cx);
+}
+
+uint8_t I2C_Read_Data(I2C_Typedef_t *I2Cx, uint8_t slave_addr)
+{
+	uint8_t rx_data;
+
+	I2C_CMD_START(I2Cx);
+
+	I2Cx->TX_REG = (slave_addr << 1) | 1;
+	I2C_CMD_WRITE(I2Cx);
+
+	I2Cx->TX_REG = I2C_ACK_IN_BIT;
+	I2C_CMD_READ(I2Cx);
+
+	rx_data = (uint8_t)(I2Cx->RX_STATUS & 0xFF);
+
+	I2C_CMD_STOP(I2Cx);
+
+	return rx_data;
+}
